@@ -1,20 +1,20 @@
 
 
-
 name: deploy-and-notify
 on:
   pull_request:
-    branches:
-      - develop
+    branches: [develop]
 jobs:
-  deploy:
-    runs-on: centos8
+  build:
+    runs-on: centos-8
     steps:
-      - name: Install Node.js version 14
-        run: sudo yum install -y nodejs-14
-      - name: Set Node.js version 14 as default
-        run: sudo alternatives --set nodejs /usr/bin/nodejs14
-      - name: Install project dependencies
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install Node.js 14
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+      - name: Install dependencies
         run: yarn install
       - name: Build project
         run: ./build.sh
@@ -22,7 +22,7 @@ jobs:
         run: ./deploy.sh
         if: success()
       - name: Notify Microsoft Teams
-        uses: appleboy/telegram-action@master
+        uses: rtCamp/action-slack-notify@v2.0
         with:
-          to: ${{ secrets.TEAMS_CHANNEL }}
-          message: "Deployment successful"
+          status: Deployment successful
+          channel: #microsoft-teams-channel
